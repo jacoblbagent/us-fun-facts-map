@@ -7,15 +7,32 @@ import { STATE_FACTS, NAME_TO_ABBR } from './funFacts';
 const GEOJSON_URL =
   'https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json';
 
-const stateStyle: PathOptions = {
-  fillColor: '#4a7c59',
-  fillOpacity: 0.55,
-  color: '#1c1917',
-  weight: 1,
-};
+// Deterministic color per state — spread hues evenly
+const stateColors: Record<string, string> = {};
+const SAT = '55%';
+const LIT = '35%';
+const HUE_STEP = 137; // ~golden angle to avoid adjacent similar hues
+
+let hueIdx = 0;
+function getStateColor(name: string): string {
+  if (!stateColors[name]) {
+    stateColors[name] = `hsl(${(hueIdx * HUE_STEP) % 360}, ${SAT}, ${LIT})`;
+    hueIdx++;
+  }
+  return stateColors[name];
+}
+
+function getStateStyle(feature: any): PathOptions {
+  const name: string = feature?.properties?.name || '';
+  return {
+    fillColor: getStateColor(name),
+    fillOpacity: 0.55,
+    color: '#1c1917',
+    weight: 1,
+  };
+}
 
 const hoverStyle: PathOptions = {
-  fillColor: '#6aab7a',
   fillOpacity: 0.85,
   color: '#292524',
   weight: 1.5,
@@ -50,11 +67,12 @@ const USMap: React.FC = () => {
       const abbr = NAME_TO_ABBR[name];
       const info = abbr ? STATE_FACTS[abbr] : undefined;
       const factText = info?.fact || `${name} — no fact recorded`;
+      const origColor = getStateColor(name);
 
       layer.on({
         mouseover: (e: LeafletMouseEvent) => {
           const l = e.target as L.Path;
-          l.setStyle(hoverStyle);
+          l.setStyle({ ...hoverStyle, fillColor: origColor });
           l.bindTooltip(
             `<strong>${info?.name || name}</strong><br/><em>${factText}</em>`,
             {
@@ -68,7 +86,7 @@ const USMap: React.FC = () => {
         },
         mouseout: (e: LeafletMouseEvent) => {
           const l = e.target as L.Path;
-          l.setStyle(stateStyle);
+          l.setStyle({ fillColor: origColor, fillOpacity: 0.55, color: '#1c1917', weight: 1 });
           l.unbindTooltip();
         },
       });
@@ -96,7 +114,7 @@ const USMap: React.FC = () => {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      <GeoJSON key="states" data={geoJsonData as any} style={stateStyle} onEachFeature={onEachFeature} />
+      <GeoJSON key="states" data={geoJsonData as any} style={getStateStyle} onEachFeature={onEachFeature} />
       <FitToBounds data={geoJsonData} />
     </MapContainer>
   );
