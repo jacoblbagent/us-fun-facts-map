@@ -58,3 +58,9 @@ export const STATE_FACTS: Record<string, StateInfo> = {
 };
 
 export const STATE_ABBRS = Object.keys(STATE_FACTS).sort();
+
+// Lookup from full state name -> abbreviation (e.g. "Alabama" -> "AL")
+export const NAME_TO_ABBR: Record<string, string> = {};
+for (const [abbr, info] of Object.entries(STATE_FACTS)) {
+  NAME_TO_ABBR[info.name] = abbr;
+}

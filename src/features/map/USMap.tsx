@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback, memo } from 'react';
 import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
 import type { PathOptions, Layer, LeafletMouseEvent } from 'leaflet';
 import L from 'leaflet';
-import { STATE_FACTS } from './funFacts';
+import { STATE_FACTS, NAME_TO_ABBR } from './funFacts';
 
 const GEOJSON_URL =
   'https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json';
@@ -46,9 +46,8 @@ const USMap: React.FC = () => {
 
   const onEachFeature = useCallback(
     (feature: any, layer: Layer) => {
-      const abbr: string | undefined =
-        feature.properties?.abbr || feature.properties?.iso_3166_2;
       const name: string = feature.properties?.name || '';
+      const abbr = NAME_TO_ABBR[name];
       const info = abbr ? STATE_FACTS[abbr] : undefined;
       const factText = info?.fact || `${name} — no fact recorded`;
 
