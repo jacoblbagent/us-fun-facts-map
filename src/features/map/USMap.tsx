@@ -74,7 +74,7 @@ const USMap: React.FC = () => {
           const l = e.target as L.Path;
           l.setStyle({ ...hoverStyle, fillColor: origColor });
           l.bindTooltip(
-            `<strong>${info?.name || name}</strong><br/><em>${factText}</em>`,
+            `<strong>${info?.name || name}</strong><em>${factText}</em>`,
             {
               direction: 'top',
               offset: [0, -8],

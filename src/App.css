@@ -98,7 +98,6 @@ body {
   color: var(--green-200);
   font-weight: 600;
   display: block;
-  margin-bottom: 2px;
 }
 
 .state-tooltip::before {
