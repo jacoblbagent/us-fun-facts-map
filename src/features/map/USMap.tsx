@@ -1,67 +1,106 @@
-import React, { useCallback } from 'react';
-import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { setHoveredState } from './mapSlice';
+import React, { useEffect, useState, useCallback, memo } from 'react';
+import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
+import type { PathOptions, Layer, LeafletMouseEvent } from 'leaflet';
+import L from 'leaflet';
 import { STATE_FACTS } from './funFacts';
-import { STATE_PATHS } from './statePaths';
-import Tooltip from './Tooltip';
+
+const GEOJSON_URL =
+  'https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json';
+
+const stateStyle: PathOptions = {
+  fillColor: '#4a7c59',
+  fillOpacity: 0.55,
+  color: '#1c1917',
+  weight: 1,
+};
+
+const hoverStyle: PathOptions = {
+  fillColor: '#6aab7a',
+  fillOpacity: 0.85,
+  color: '#292524',
+  weight: 1.5,
+};
+
+const FitToBounds: React.FC<{ data: object }> = ({ data }) => {
+  const map = useMap();
+  useEffect(() => {
+    const geoLayer = L.geoJSON(data as any);
+    map.fitBounds(geoLayer.getBounds(), { padding: [20, 20] });
+  }, [data, map]);
+  return null;
+};
 
 const USMap: React.FC = () => {
-  const dispatch = useAppDispatch();
-  const { hoveredState, tooltipPos } = useAppSelector((s) => s.map);
+  const [geoJsonData, setGeoJsonData] = useState<object | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleMouseEnter = useCallback(
-    (abbr: string, e: React.MouseEvent) => {
-      const rect = (e.currentTarget as SVGGElement).ownerSVGElement?.getBoundingClientRect();
-      const x = e.clientX - (rect?.left ?? 0);
-      const y = e.clientY - (rect?.top ?? 0);
-      dispatch(setHoveredState({ stateAbbr: abbr, x, y }));
+  useEffect(() => {
+    fetch(GEOJSON_URL)
+      .then((res) => {
+        if (!res.ok) throw new Error(`Failed to load map data (HTTP ${res.status})`);
+        return res.json();
+      })
+      .then(setGeoJsonData)
+      .catch((err) => setError(err.message));
+  }, []);
+
+  const onEachFeature = useCallback(
+    (feature: any, layer: Layer) => {
+      const abbr: string | undefined =
+        feature.properties?.abbr || feature.properties?.iso_3166_2;
+      const name: string = feature.properties?.name || '';
+      const info = abbr ? STATE_FACTS[abbr] : undefined;
+      const factText = info?.fact || `${name} — no fact recorded`;
+
+      layer.on({
+        mouseover: (e: LeafletMouseEvent) => {
+          const l = e.target as L.Path;
+          l.setStyle(hoverStyle);
+          l.bindTooltip(
+            `<strong>${info?.name || name}</strong><br/><em>${factText}</em>`,
+            {
+              direction: 'top',
+              offset: [0, -8],
+              sticky: true,
+              className: 'state-tooltip',
+            }
+          );
+          l.openTooltip(e.latlng);
+        },
+        mouseout: (e: LeafletMouseEvent) => {
+          const l = e.target as L.Path;
+          l.setStyle(stateStyle);
+          l.unbindTooltip();
+        },
+      });
     },
-    [dispatch]
+    []
   );
 
-  const handleMouseLeave = useCallback(() => {
-    dispatch(setHoveredState(null));
-  }, [dispatch]);
+  if (error) {
+    return <div className="map-message map-error">{error}</div>;
+  }
 
-  const fact = hoveredState ? STATE_FACTS[hoveredState] : null;
+  if (!geoJsonData) {
+    return <div className="map-message map-loading">Loading US map…</div>;
+  }
 
   return (
-    <div className="map-wrapper">
-      <svg
-        viewBox="0 0 960 600"
-        className="us-map"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        {/* Background water */}
-        <rect x="0" y="0" width="960" height="600" fill="#dce9f5" rx="4" />
-
-        {STATE_ABBRS.map((abbr) => {
-          const info = STATE_FACTS[abbr];
-          const isHovered = hoveredState === abbr;
-          return (
-            <g
-              key={abbr}
-              onMouseEnter={(e) => handleMouseEnter(abbr, e)}
-              onMouseLeave={handleMouseLeave}
-              className={`state-group ${isHovered ? 'hovered' : ''}`}
-            >
-              <title>{info.name}</title>
-              <path
-                d={STATE_PATHS[abbr]}
-                className={`state-path ${isHovered ? 'state-path-hovered' : ''}`}
-              />
-            </g>
-          );
-        })}
-      </svg>
-
-      {fact && tooltipPos && (
-        <Tooltip x={tooltipPos.x} y={tooltipPos.y} stateInfo={fact} />
-      )}
-    </div>
+    <MapContainer
+      center={[39.8283, -98.5795]}
+      zoom={4}
+      className="leaflet-map"
+      zoomControl={true}
+      scrollWheelZoom={true}
+    >
+      <TileLayer
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      />
+      <GeoJSON key="states" data={geoJsonData as any} style={stateStyle} onEachFeature={onEachFeature} />
+      <FitToBounds data={geoJsonData} />
+    </MapContainer>
   );
 };
 
-const STATE_ABBRS = Object.keys(STATE_PATHS).filter((k) => k !== 'DC');
-
-export default USMap;
+export default memo(USMap);

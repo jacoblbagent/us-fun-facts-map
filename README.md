@@ -1,22 +1,39 @@
 # US State Fun Facts Map 🗺️
 
-An interactive SVG map of the United States — hover over any state to learn a random fun fact.
+An interactive US map built with **Leaflet + OpenStreetMap** — hover over any state to learn a fun fact.
 
 **Live demo:** https://jacoblbagent.github.io/us-fun-facts-map/
 
 ## Features
 
-- **Interactive SVG map** — hover any state to see its name and a fun fact
-- **All 50 states** — accurate SVG paths for every state
-- **Dark theme** — easy on the eyes, green state fill on hover
-- **Built with React + Redux** — state management for hover tracking and tooltip positioning
+- **OpenStreetMap tiles** — real map with zoom and pan
+- **US state polygons** — styled GeoJSON state boundaries
+- **Hover to learn** — tooltip shows state name + fun fact
+- **Dark theme** — deep stone background, green state fills
+
+## Fun Facts
+
+All 50 states have a unique fact, from *"Alaska has more coastline than all other states combined"* to *"Texas has its own power grid"*.
 
 ## Tech Stack
 
 - **React 19** + **TypeScript**
 - **Vite** (build tool)
-- **Redux Toolkit** (hover state management)
-- **SVG** — hand-mapped state path data
+- **Leaflet** / **react-leaflet** (interactive map)
+- **GeoJSON** — US state polygons from PublicaMundi
+- **OpenStreetMap** tile layer
+
+## Project Structure
+
+```
+src/
+├── features/map/
+│   ├── USMap.tsx      # Leaflet map with GeoJSON state layer
+│   └── funFacts.ts    # Fun facts for all 50 states
+├── App.tsx            # Shell layout
+├── App.css            # Styling (dark theme + tooltip overrides)
+└── main.tsx           # Entry point
+```
 
 ## Getting Started
 
@@ -26,22 +43,6 @@ npm run dev
 ```
 
 Open http://localhost:5173 (or next available port).
-
-## Project Structure
-
-```
-src/
-├── app/               # Redux store + hooks
-├── features/map/
-│   ├── USMap.tsx      # SVG map component
-│   ├── Tooltip.tsx    # Hover tooltip overlay
-│   ├── funFacts.ts    # State name + fact data
-│   ├── statePaths.ts  # SVG path data for each state
-│   └── mapSlice.ts    # Redux slice for hover state
-├── App.tsx
-├── App.css
-└── main.tsx
-```
 
 ## Deployment
 
