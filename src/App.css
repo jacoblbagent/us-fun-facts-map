@@ -75,7 +75,7 @@ body {
 }
 
 /* Leaflet tooltip override */
-.state-tooltip {
+.state-tooltip.leaflet-tooltip {
   background: var(--stone-800) !important;
   border: 1px solid var(--stone-600) !important;
   border-radius: 4px !important;
@@ -84,6 +84,7 @@ body {
   font-size: 0.85rem !important;
   line-height: 1.4 !important;
   max-width: 200px !important;
+  min-width: 120px;
   color: var(--stone-200) !important;
   white-space: normal !important;
 }
