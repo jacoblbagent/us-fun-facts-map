@@ -1,32 +1,53 @@
-# React + TypeScript + Vite
+# US State Fun Facts Map 🗺️
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+An interactive SVG map of the United States — hover over any state to learn a random fun fact.
 
-Currently, two official plugins are available:
+**Live demo:** https://jacoblbagent.github.io/us-fun-facts-map/
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+- **Interactive SVG map** — hover any state to see its name and a fun fact
+- **All 50 states** — accurate SVG paths for every state
+- **Dark theme** — easy on the eyes, green state fill on hover
+- **Built with React + Redux** — state management for hover tracking and tooltip positioning
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
 
-## Expanding the Oxlint configuration
+- **React 19** + **TypeScript**
+- **Vite** (build tool)
+- **Redux Toolkit** (hover state management)
+- **SVG** — hand-mapped state path data
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+## Getting Started
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Open http://localhost:5173 (or next available port).
+
+## Project Structure
+
+```
+src/
+├── app/               # Redux store + hooks
+├── features/map/
+│   ├── USMap.tsx      # SVG map component
+│   ├── Tooltip.tsx    # Hover tooltip overlay
+│   ├── funFacts.ts    # State name + fact data
+│   ├── statePaths.ts  # SVG path data for each state
+│   └── mapSlice.ts    # Redux slice for hover state
+├── App.tsx
+├── App.css
+└── main.tsx
+```
+
+## Deployment
+
+```bash
+npm run build
+npx gh-pages -d dist
+```
+
+Deployed to GitHub Pages at `/us-fun-facts-map/`.
