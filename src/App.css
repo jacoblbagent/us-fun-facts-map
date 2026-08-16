@@ -83,7 +83,7 @@ body {
   box-shadow: 0 4px 16px rgba(0,0,0,0.4) !important;
   font-size: 0.85rem !important;
   line-height: 1.4 !important;
-  max-width: 300px !important;
+  max-width: 200px !important;
   color: var(--stone-200) !important;
   white-space: normal !important;
 }
