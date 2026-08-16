@@ -74,6 +74,11 @@ body {
   color: #f87171;
 }
 
+/* Constrain tooltip pane */
+.leaflet-tooltip-pane {
+  width: 200px !important;
+}
+
 /* Leaflet tooltip override */
 .state-tooltip.leaflet-tooltip {
   background: var(--stone-800) !important;
